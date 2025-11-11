@@ -1,0 +1,19 @@
+Timeline of work @ScantBasic
+Oct. 22, 2025: Started on Disinfect V1
+Oct. 23, 2025: Added the Movement Physics for the player, as well as camera/keyboard control
+Left off working on functional crouch, need to check if I ever stop crouching
+Nov. 4, 2025: Fixed Crouching and the camera while crouching
+Nov. 11, 2025: Hopefully the final camera while crouching fixes, as well as fixed the stair collisions
+Stair collisions need more testing. Started a poll on if I am adding dashing or sliding into this first.
+
+
+
+
+
+
+
+
+
+
+
+Shoutout to Majikayo Games for amazing tutorials on stair handling and crouching.
