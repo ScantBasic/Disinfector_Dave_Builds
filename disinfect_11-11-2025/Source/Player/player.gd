@@ -48,7 +48,7 @@ const CROUCHJUMPBONUS := CROUCH_TRANSLATE * 0.9
 @export var cam_bob_speed := 10.0         # Frequency of bobbing
 @export var cam_smooth := 6.0             # How smoothly camera lerps to target
 @export var land_bob_intensity := 2.5     # How far camera dips when landing
-@export var land_bob_speed := 12.0        # How fast it returns up after landing
+@export var land_bob_speed := 24.0        # How fast it returns up after landing
 
 # --- NODE REFERENCES ---
 @onready var cam_pivot : Node3D = $Camera_Controller
