@@ -1,0 +1,74 @@
+[gd_scene load_steps=3 format=3 uid="uid://lrxxpoddioro"]
+
+[ext_resource type="Script" path="res://Assets/UI/HUD/Debug_Info.gd" id="1_u1i5i"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_a0sk2"]
+bg_color = Color(0.137255, 0.137255, 0.137255, 0.784314)
+
+[node name="Debug_Info" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_u1i5i")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 1
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="Panel" type="Panel" parent="MarginContainer"]
+custom_minimum_size = Vector2(420, 280)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_a0sk2")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/Panel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 8
+
+[node name="Seperator" type="Control" parent="MarginContainer/Panel/HBoxContainer"]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/Panel/HBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="State Label" type="Label" parent="MarginContainer/Panel/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+text = "State: IDLE"
+
+[node name="Velocity Label" type="Label" parent="MarginContainer/Panel/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+text = "Velocity: 8.88,8.88,8.88"
+
+[node name="Velocity Length Label" type="Label" parent="MarginContainer/Panel/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+text = "Velocity Length: 198898.99"
+
+[node name="Position Label" type="Label" parent="MarginContainer/Panel/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+text = "Coords: X,Y,Z"
+
+[node name="FrameRate Label" type="Label" parent="MarginContainer/Panel/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+text = "FPS: 3060"
+
+[node name="Health Label" type="Label" parent="MarginContainer/Panel/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+text = "HP: INF"
