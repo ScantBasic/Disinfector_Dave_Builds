@@ -1,0 +1,94 @@
+[gd_scene load_steps=2 format=3 uid="uid://dngy8ehbjgat"]
+
+[ext_resource type="Script" path="res://Assets/UI/Menus/Pause Menu/pause_menu.gd" id="1_fr7bl"]
+
+[node name="Pause_Menu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_fr7bl")
+
+[node name="Bg" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.207843, 0.207843, 0.207843, 0.470588)
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 12
+
+[node name="TitleContainer" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 72
+
+[node name="Seperator" type="Control" parent="MarginContainer/TitleContainer"]
+layout_mode = 2
+
+[node name="Pause Title" type="Label" parent="MarginContainer/TitleContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.439216, 0.803922, 1, 1)
+theme_override_colors/font_outline_color = Color(0.439216, 0.803922, 1, 1)
+theme_override_constants/outline_size = 3
+theme_override_font_sizes/font_size = 84
+text = "Game Paused"
+horizontal_alignment = 1
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="OptionContainer" type="VBoxContainer" parent="MarginContainer/HBoxContainer"]
+custom_minimum_size = Vector2(320, 0)
+layout_mode = 2
+theme_override_constants/separation = 18
+alignment = 2
+
+[node name="Resume" type="Button" parent="MarginContainer/HBoxContainer/OptionContainer"]
+custom_minimum_size = Vector2(180, 60)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.439216, 0.803922, 1, 1)
+theme_override_font_sizes/font_size = 36
+text = "RESUME GAME"
+
+[node name="Seperator" type="Control" parent="MarginContainer/HBoxContainer/OptionContainer"]
+layout_mode = 2
+
+[node name="Settings" type="Button" parent="MarginContainer/HBoxContainer/OptionContainer"]
+custom_minimum_size = Vector2(180, 60)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.439216, 0.803922, 1, 1)
+theme_override_font_sizes/font_size = 36
+text = "SETTINGS"
+
+[node name="Seperator2" type="Control" parent="MarginContainer/HBoxContainer/OptionContainer"]
+layout_mode = 2
+
+[node name="Exit" type="Button" parent="MarginContainer/HBoxContainer/OptionContainer"]
+custom_minimum_size = Vector2(180, 60)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.439216, 0.803922, 1, 1)
+theme_override_font_sizes/font_size = 36
+text = "EXIT TO MENU"
+
+[node name="Seperator3" type="Control" parent="MarginContainer/HBoxContainer/OptionContainer"]
+custom_minimum_size = Vector2(0, 240)
+layout_mode = 2
+
+[connection signal="pressed" from="MarginContainer/HBoxContainer/OptionContainer/Resume" to="." method="_on_resume_pressed"]
+[connection signal="pressed" from="MarginContainer/HBoxContainer/OptionContainer/Exit" to="." method="_on_exit_pressed"]
