@@ -1,0 +1,14 @@
+2026.2.3 Started working on Disinfect V2 using the original tutorial by StayAtHomeDev on Youtube.
+Finished the first episode, will be changing most of the physics once I get to the state machines.
+
+2026.2.10 Figured out how a state machine works with nodes. Stopped using the tutorial now that I know what
+I am doing. Added in Quake-style walking and jumping with coyote jumping. Added in Airborne movement.
+Added Crouching movement by running some if statements about is_crouching to lower max speed.
+
+2026.2.23 Added a sprinting state and headbobbing. Fixed a bug with grounded velocity
+where you could not move if you stopped moving. Added a sliding state.
+
+2026.2.24 Added a dashing state. Changed the camera to use a dual-node contoller due to preference.
+Turned down the reflectiveness of the floor in level_001. Turned down the sun in level_001.
+Fixed a bug where the dash state would only continue if grounded. Added NoClip and WallRunning states.
+Changed how wallrunning rotated the camera on the z axis to be more accepting of cameras facing walls.

@@ -1,0 +1,113 @@
+[gd_scene load_steps=17 format=3 uid="uid://bn1557ojlxf8n"]
+
+[ext_resource type="Material" uid="uid://dlmf5wcmg1cnh" path="res://textures/materials/player.tres" id="1_5cb28"]
+[ext_resource type="Script" path="res://controllers/Player/player_controller.gd" id="1_mhiqj"]
+[ext_resource type="Script" path="res://controllers/Player/camera_controller.gd" id="3_0r7eg"]
+[ext_resource type="Script" path="res://controllers/States/state_machine.gd" id="3_b8pyo"]
+[ext_resource type="Script" path="res://controllers/Player/Player States/Idle.gd" id="4_4j0t3"]
+[ext_resource type="Script" path="res://controllers/Player/Player States/Walking.gd" id="5_n22os"]
+[ext_resource type="Script" path="res://controllers/Player/Player States/Airborne.gd" id="6_8fjhd"]
+[ext_resource type="Script" path="res://controllers/Player/Player States/Crouching.gd" id="8_thcsq"]
+[ext_resource type="Script" path="res://controllers/Player/Player States/Sprinting.gd" id="9_w33tj"]
+[ext_resource type="Script" path="res://controllers/Player/sliding.gd" id="10_1xt16"]
+[ext_resource type="Script" path="res://controllers/Player/dashing.gd" id="11_l2gpj"]
+[ext_resource type="Theme" uid="uid://b5u7tqu8cj4hd" path="res://textures/Themes/debug.tres" id="12_11icu"]
+[ext_resource type="Script" path="res://controllers/Player/no_clip.gd" id="12_ddyx6"]
+[ext_resource type="Script" path="res://UserInterface/debug_panel.gd" id="13_t43w1"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_k6fsg"]
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_kpt6r"]
+material = ExtResource("1_5cb28")
+
+[node name="player_controller" type="CharacterBody3D" node_paths=PackedStringArray("CAMERA_CONTROLLER", "PLAYER_COLLISION", "DEFAULT_MESH")]
+script = ExtResource("1_mhiqj")
+max_velocity_ground = null
+slide_start_bonus = null
+max_velocity_air = null
+GRAVITY = null
+jump_strength = null
+max_jump_time = null
+dash_velocity = null
+max_dashes = null
+dash_total_time = null
+TILT_LOWER_LIMIT = null
+TILT_UPPER_LIMIT = null
+CAMERA_CONTROLLER = NodePath("CameraController")
+_mouse_sensitivity = null
+PLAYER_COLLISION = NodePath("CollisionShape3D")
+DEFAULT_MESH = NodePath("CollisionShape3D/MeshInstance3D")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+shape = SubResource("CapsuleShape3D_k6fsg")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="CollisionShape3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00305915, -0.0116794, 0.0055989)
+layers = 2
+mesh = SubResource("CapsuleMesh_kpt6r")
+
+[node name="CameraController" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.7, 0)
+script = ExtResource("3_0r7eg")
+
+[node name="HeadController" type="Node3D" parent="CameraController"]
+
+[node name="Camera3D" type="Camera3D" parent="CameraController/HeadController"]
+cull_mask = 1048573
+
+[node name="RayCast3D" type="RayCast3D" parent="CameraController/HeadController/Camera3D"]
+target_position = Vector3(3, 0, 0)
+
+[node name="PlayerStateMachine" type="Node" parent="." node_paths=PackedStringArray("CURRENT_STATE")]
+script = ExtResource("3_b8pyo")
+CURRENT_STATE = NodePath("Idle")
+
+[node name="Idle" type="Node" parent="PlayerStateMachine"]
+script = ExtResource("4_4j0t3")
+
+[node name="Walking" type="Node" parent="PlayerStateMachine"]
+script = ExtResource("5_n22os")
+
+[node name="Airborne" type="Node" parent="PlayerStateMachine"]
+script = ExtResource("6_8fjhd")
+
+[node name="Crouching" type="Node" parent="PlayerStateMachine"]
+script = ExtResource("8_thcsq")
+
+[node name="Sprinting" type="Node" parent="PlayerStateMachine"]
+script = ExtResource("9_w33tj")
+
+[node name="Sliding" type="Node" parent="PlayerStateMachine"]
+script = ExtResource("10_1xt16")
+
+[node name="Dashing" type="Node" parent="PlayerStateMachine"]
+script = ExtResource("11_l2gpj")
+
+[node name="NoClip" type="Node" parent="PlayerStateMachine"]
+script = ExtResource("12_ddyx6")
+
+[node name="UserInterface" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="DebugPanel" type="PanelContainer" parent="UserInterface"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 0
+offset_left = 10.0
+offset_top = 10.0
+offset_right = 210.0
+offset_bottom = 50.0
+theme = ExtResource("12_11icu")
+script = ExtResource("13_t43w1")
+
+[node name="MarginContainer" type="MarginContainer" parent="UserInterface/DebugPanel"]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UserInterface/DebugPanel/MarginContainer"]
+layout_mode = 2
