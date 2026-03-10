@@ -12,3 +12,8 @@ where you could not move if you stopped moving. Added a sliding state.
 Turned down the reflectiveness of the floor in level_001. Turned down the sun in level_001.
 Fixed a bug where the dash state would only continue if grounded. Added NoClip and WallRunning states.
 Changed how wallrunning rotated the camera on the z axis to be more accepting of cameras facing walls.
+
+2026.2.25 Changed how the camera rotates during wallrunning to be based on how far the camera
+is facing from the wall.
+
+2026.3.10 Added double jumping. Added comments to the player code
