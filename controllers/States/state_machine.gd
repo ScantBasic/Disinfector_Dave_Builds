@@ -22,7 +22,7 @@ func _process(delta: float) -> void:
 
 func _physics_process(delta: float) -> void:
 	CURRENT_STATE.physics_update(delta)
-	GlobalController.DEBUG.add_property("State", CURRENT_STATE.name, 3)
+	GlobalController.DEBUG.add_property("State", CURRENT_STATE.name, 4)
 
 func on_child_transition(new_state_name: StringName) -> void:
 	var new_state = states.get(new_state_name)

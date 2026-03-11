@@ -9,11 +9,11 @@
 [ext_resource type="Script" path="res://controllers/Player/Player States/Airborne.gd" id="6_8fjhd"]
 [ext_resource type="Script" path="res://controllers/Player/Player States/Crouching.gd" id="8_thcsq"]
 [ext_resource type="Script" path="res://controllers/Player/Player States/Sprinting.gd" id="9_w33tj"]
-[ext_resource type="Script" path="res://controllers/Player/sliding.gd" id="10_1xt16"]
-[ext_resource type="Script" path="res://controllers/Player/dashing.gd" id="11_l2gpj"]
+[ext_resource type="Script" path="res://controllers/States/sliding.gd" id="10_1xt16"]
+[ext_resource type="Script" path="res://controllers/States/dashing.gd" id="11_l2gpj"]
 [ext_resource type="Theme" uid="uid://b5u7tqu8cj4hd" path="res://textures/Themes/debug.tres" id="12_11icu"]
-[ext_resource type="Script" path="res://controllers/Player/no_clip.gd" id="12_ddyx6"]
-[ext_resource type="Script" path="res://controllers/Player/wall_jumping.gd" id="13_p2ybx"]
+[ext_resource type="Script" path="res://controllers/States/no_clip.gd" id="12_ddyx6"]
+[ext_resource type="Script" path="res://controllers/States/wall_jumping.gd" id="13_p2ybx"]
 [ext_resource type="Script" path="res://UserInterface/debug_panel.gd" id="13_t43w1"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_k6fsg"]
@@ -23,6 +23,7 @@ material = ExtResource("1_5cb28")
 
 [node name="player_controller" type="CharacterBody3D" node_paths=PackedStringArray("CAMERA_CONTROLLER", "PLAYER_COLLISION", "DEFAULT_MESH")]
 script = ExtResource("1_mhiqj")
+wallrun_speed = 15.0
 CAMERA_CONTROLLER = NodePath("CameraController")
 PLAYER_COLLISION = NodePath("CollisionShape3D")
 DEFAULT_MESH = NodePath("CollisionShape3D/MeshInstance3D")
@@ -45,8 +46,15 @@ script = ExtResource("3_0r7eg")
 [node name="Camera3D" type="Camera3D" parent="CameraController/HeadController"]
 cull_mask = 1048573
 
-[node name="RayCast3D" type="RayCast3D" parent="CameraController/HeadController/Camera3D"]
-target_position = Vector3(0, 0, -6)
+[node name="RayCasts" type="Node3D" parent="."]
+
+[node name="RightWallCheck" type="RayCast3D" parent="RayCasts"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.5, 1, 0)
+target_position = Vector3(1, 0, 0)
+
+[node name="LeftWallCheck" type="RayCast3D" parent="RayCasts"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.5, 1, 0)
+target_position = Vector3(-1, 0, 0)
 
 [node name="PlayerStateMachine" type="Node" parent="." node_paths=PackedStringArray("CURRENT_STATE")]
 script = ExtResource("3_b8pyo")
