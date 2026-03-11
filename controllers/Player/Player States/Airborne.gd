@@ -2,8 +2,8 @@ class_name Airborne
 extends PlayerMovement
 
 func physics_update(delta):
-	PLAYER.update_timers(delta)
 	PLAYER.update_input()
+	PLAYER.update_timers(delta)
 	PLAYER.update_gravity(delta)
 	PLAYER.update_jumping(delta)
 	PLAYER.update_velocity_air(delta)
@@ -16,7 +16,7 @@ func physics_update(delta):
 		transition.emit("NoClip")
 	elif PLAYER.wish_dash && PLAYER.can_enter_new_dash:
 		transition.emit("Dashing")
-	elif PLAYER.is_on_wall() && Input.is_action_pressed("move_up") && Input.is_action_pressed("sprint"):
+	elif PLAYER.is_on_wall() && Input.is_action_pressed("move_up") && Input.is_action_pressed("sprint") && PLAYER.velocity.y <= 0.0:
 		transition.emit("WallRunning")
 	elif PLAYER.is_on_floor():
 		if PLAYER.is_crouching:

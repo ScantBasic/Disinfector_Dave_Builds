@@ -2,8 +2,8 @@ class_name Walking
 extends PlayerMovement
 
 func physics_update(delta):
-	PLAYER.update_timers(delta)
 	PLAYER.update_input()
+	PLAYER.update_timers(delta)
 	PLAYER.update_jumping(delta)
 	PLAYER.update_velocity_ground(PLAYER.max_velocity_ground,delta)
 	PLAYER.update_crouching(delta)

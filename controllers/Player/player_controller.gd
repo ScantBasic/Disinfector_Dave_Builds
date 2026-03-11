@@ -9,10 +9,10 @@ var wish_crouch := false
 var wish_sprint := false
 var wish_dash := false
 var wish_noclip := false
-var is_crouching := false
+
 
 # GROUND MOVEMENT VARIABLES
-@export_category("Ground Movement")
+@export_category("Ground Variables")
 @export var max_velocity_ground := 8.5
 var max_acceleration = 10 * max_velocity_ground
 var stop_speed := 1.5
@@ -20,22 +20,24 @@ var friction := 6.0
 
 # SLIDING MOVEMENT VARIABLES
 var last_velocity := Vector3.ZERO
-@export_category("Sliding Movement")
-var is_sliding = false               #for the sliding stuff
-@export var slide_start_bonus := 4.5      #how much bonus speed you get when you start sliding
-var slide_friction := 1.5    # how fast we slow down, smaller means more distance
+@export_category("Sliding Variables")
+var is_sliding = false
+@export var slide_start_bonus := 4.5
+var slide_friction := 0.8
 var slide_stop_speed := 0.5
 
 # AIR MOVEMENT VARIABLES
-@export_category("Air Movement")
+@export_category("Air Variables")
 @export var max_velocity_air := 1.25
 @export var GRAVITY := 15.0
 @export var jump_strength := 7.5
 var coyote_jump_timer := 0.0
 @export var max_jump_time := 0.2
+@export var max_double_jumps := 1
+var double_jumps := 0
 
 # DASH MOVEMENT VARIABLES
-@export_category("Dash Movement")
+@export_category("Dash Variables")
 @export var dash_velocity := 12.0
 @export var max_dashes := 1
 var dashes := 0
@@ -45,19 +47,32 @@ var dash_tmr := 0.0
 var can_enter_new_dash := true
 
 # WALL MOVEMENT VARIABLES
-@export_category("WALL MOVEMENT")
+@export_category("Wallrun Variables")
+var can_wallrun : bool = true
+var side_check_raycast_collided : int = 0 #if -1, left side, if 1, right side
+var wall_normal : Vector3 = Vector3.ZERO
+var wall_forward_dir : Vector3 = Vector3.ZERO
+@export var wallrun_speed : float = 24.0
+@export var wallrun_time : float = 3.5
+@export var infinite_wallrun_time : bool = false
+@onready var LEFTWALLCHECK = $RayCasts/LeftWallCheck
+@onready var RIGHTWALLCHECK = $RayCasts/RightWallCheck
+
+
+@export_group("Walljump variables")
+var about_to_jump_vel : Vector3
+@export var walljump_push_force : float = 5.5
+@export var walljump_y_velocity : float = 7.5
 @export var max_wall_jumps := 4
-var wall_jumps := 0
-@export var wall_speed := 5.5
+var wall_jumps = 0
 
 # CAMERA CONTROLS AND INPUTS
-@export_category("Camera")
+@export_category("Camera Variables")
 var TILT_LOWER_LIMIT := deg_to_rad(-90)
 var TILT_UPPER_LIMIT := deg_to_rad(90)
 @export var CAMERA_CONTROLLER = Camera3D
 @onready var HEAD_CONTROLLER = $CameraController/HeadController
 @onready var CAMERA_POSITION = $CameraController
-@onready var WALLJUMP_RAYCAST = $CameraController/HeadController/Camera3D/RayCast3D
 
 
 var _mouse_input : bool = false
@@ -82,46 +97,53 @@ var land_bob_offset : float        # camera offset when landing
 const DEFAULT_HEIGHT := 2.0
 const CROUCH_TRANSLATE := 0.7
 const CROUCH_JUMP_BONUS := CROUCH_TRANSLATE * 0.9
-
+var is_crouching := false
 
 
 
 #ACTUAL CODE AND NOT JUST VARIABLES
 
 func _input(event: InputEvent) -> void:
+	# quit the program if want to, will be changed later into a pause menu
 	if event.is_action_pressed("exit"):
 		get_tree().quit()
 
 func _unhandled_input(event: InputEvent) -> void:
+	#read and redirect our mouse input for camera usage
 	_mouse_input = event is InputEventMouseMotion && Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED
 	if _mouse_input:
 		_rotation_input = -event.relative.x * (_mouse_sensitivity /100.0)
 		_tilt_input = -event.relative.y * (_mouse_sensitivity /100.0)
 
 func _physics_process(_delta: float) -> void:
+	# add some debug properties to the debug screen thing
 	GlobalController.DEBUG.add_property("FPS", Engine.get_frames_per_second(), 1)
 	GlobalController.DEBUG.add_property("Move Speed", "%.2f" % Vector2(last_velocity.x,last_velocity.z).length(), 2)
+	GlobalController.DEBUG.add_property("Y Vel", "%.2f" % last_velocity.y, 3)
+	
 
 func _update_camera(delta) -> void:
+	# rotate the camera head controller based on mouse input
 	HEAD_CONTROLLER.rotate_x(_tilt_input * delta)
 	HEAD_CONTROLLER.rotation.x = clamp(HEAD_CONTROLLER.rotation.x, TILT_LOWER_LIMIT, TILT_UPPER_LIMIT)
-	
+	# rotate camera position is sliding, else rotate the player
 	if is_sliding:
 		CAMERA_POSITION.rotate_y(_rotation_input * delta)
 		CAMERA_POSITION.rotation.y = clamp(CAMERA_POSITION.rotation.y,deg_to_rad(-135), deg_to_rad(135))
 	else:
 		self.rotate_y(_rotation_input * delta)
-	
+	#reset mouse input so we dont keep spinning
 	_rotation_input = 0.0
 	_tilt_input = 0.0
-	
+	# keep the player facing foward at the end of a slide
 	if !is_sliding:
 		rotate_y(CAMERA_POSITION.rotation.y)
 		CAMERA_POSITION.rotation.y = 0.0
-	
+	#attempt to rotate the camera back to z degrees on the z axis, used for wallrunning
 	CAMERA_CONTROLLER.rotation.z = lerp(CAMERA_CONTROLLER.rotation.z, 0.0, 2.4 * delta)
 
 func _headbob(time) -> float:
+	#grounded movement has headbob, sin function to move it accordingly
 	var pos = Vector3.ZERO
 	var mult = 1.0
 	if wish_sprint:
@@ -138,6 +160,7 @@ func _ready() -> void:
 	
 
 func update_input() -> void:
+	# record all inputs before we do anything, makes gameplay smoother
 	input_dir.x = Input.get_action_strength("move_right") - Input.get_action_strength("move_left")
 	input_dir.z = Input.get_action_strength("move_down") - Input.get_action_strength("move_up")
 	
@@ -150,12 +173,11 @@ func update_input() -> void:
 		wish_noclip = !wish_noclip
 
 func update_timers(delta) -> void:
+	# dash timer needs to constantly decrease, also the logic for re-enabling dashing
 	dash_tmr -= delta
 	if dash_tmr <= -0.25:
 		if is_on_floor() || dashes > 0:
 			can_enter_new_dash = true
-			if is_on_floor():
-				dashes = max_dashes
 
 func accelerate(max_velocity: float, delta) -> Vector3:
 	#current speed compared to wish_dir
@@ -169,7 +191,9 @@ func update_velocity_air(delta) -> void:
 	self.velocity = accelerate(max_velocity_air, delta)
 
 func update_velocity_ground(vel:float,delta) -> void:
+	#get current speed
 	var speed = self.velocity.length()
+	#find out how much we should stop, what our friction should be
 	if speed != 0.0:
 		var control = max(stop_speed, speed)
 		var drop = control * friction * delta
@@ -190,7 +214,7 @@ func update_gravity(delta) -> void:
 	self.velocity.y -= GRAVITY * delta
 
 func update_jumping(delta) -> void:
-	
+	#if want jump, go up if within a jumpable range
 	if wish_jump:
 		if coyote_jump_timer < max_jump_time:
 			self.velocity.y = jump_strength
@@ -198,10 +222,21 @@ func update_jumping(delta) -> void:
 			if is_sliding:
 				self.velocity.x *= 1.05
 				self.velocity.z *= 1.05
+		# double jump if we have an extra jump and cannot do a regular jump
+		elif double_jumps > 0 && !is_on_wall():
+			#if not inputing a direction, maintain velocity, cleaner movement
+			if wish_dir != Vector3.ZERO:
+				self.velocity = wish_dir * (max_velocity_ground + 4 if wish_sprint else max_velocity_ground)
+			self.velocity.y = jump_strength
+			wish_jump = false
+			double_jumps -= 1
 	
 	
+	#grounded logic, basically if something resets upon contact with the floor it goes here
 	if is_on_floor():
 		wall_jumps = max_wall_jumps
+		wallrun_time = 3.5
+		double_jumps = max_double_jumps
 		if can_enter_new_dash:
 			dashes = max_dashes
 		coyote_jump_timer = 0.0
@@ -209,17 +244,15 @@ func update_jumping(delta) -> void:
 		coyote_jump_timer += delta
 
 func update_crouching(delta) -> void:
+	#find out if we are actually crouching
 	var was_crouching_last_frame = is_crouching
-	
 	if wish_crouch:
 		is_crouching = true
-	
 	elif is_crouching && !self.test_move(self.transform, Vector3(0.0,CROUCH_TRANSLATE,0.0)):
 		is_crouching = false
-	
 	if is_sliding:
 		is_crouching = true
-	
+	#something for crouching in the air I think, no clue
 	var translate_y_if_possible := 0.0
 	if was_crouching_last_frame != is_crouching && !is_on_floor():
 		translate_y_if_possible = CROUCH_JUMP_BONUS if is_crouching else -CROUCH_JUMP_BONUS
@@ -228,7 +261,7 @@ func update_crouching(delta) -> void:
 		self.test_move(self.transform, Vector3(0, translate_y_if_possible,0), result)
 		self.position.y += result.get_travel().y
 		CAMERA_POSITION.position.y -= result.get_travel().y
-	
+	#move the camera for the crouch
 	@warning_ignore("incompatible_ternary")
 	CAMERA_POSITION.position.y = lerp(CAMERA_POSITION.position.y, -CROUCH_TRANSLATE + 1.7 if is_crouching else 1.7, 8 * delta)
 	PLAYER_COLLISION.shape.height = DEFAULT_HEIGHT - CROUCH_TRANSLATE if is_crouching else DEFAULT_HEIGHT
@@ -255,6 +288,7 @@ func update_slide(delta) -> void:
 	
 
 func get_dash_direction() -> Vector3:
+	#return what 3d space our input is facing
 	if input_dir.length() > 0:
 		var cam_basis = HEAD_CONTROLLER.global_transform.basis
 		return (cam_basis * input_dir).normalized()
@@ -278,8 +312,8 @@ func end_dash():
 		is_dashing = false
 		
 
-# --- NOCLIP MOVEMENT ---
 func process_noclip(delta):
+	# Some basic movement things if we dont have collision
 	PLAYER_COLLISION.disabled = wish_noclip
 	self.velocity = Vector3.ZERO
 	var noclip_vel = Vector3.ZERO
@@ -294,53 +328,43 @@ func process_noclip(delta):
 	
 	self.global_position += noclip_vel * delta
 
-func handle_wall_movement(delta) -> void:
-		# Separate horizontal velocity
-	var horiz_vel = Vector3(velocity.x, 0, velocity.z)
-	#not on ground so fall
-	#reducer if falling to make it feel better
-	if self.velocity.y <= 0.0:
-		self.velocity.y *= 0.8
+func wall_check() -> void:
+	if can_wallrun && (!is_on_floor() || is_on_wall()):
+		if LEFTWALLCHECK.is_colliding() && !RIGHTWALLCHECK.is_colliding():
+			side_check_raycast_collided = -1
+		elif RIGHTWALLCHECK.is_colliding() && !LEFTWALLCHECK.is_colliding():
+			side_check_raycast_collided = 1
+		else:
+			return
+
+func wallrun_forward_direction() -> void:
+	#get wall normal
+	if side_check_raycast_collided == -1:
+		wall_normal = LEFTWALLCHECK.get_collision_normal()
+	if side_check_raycast_collided == 1:
+		wall_normal = RIGHTWALLCHECK.get_collision_normal()
 	
-	#jump (or drop) from the wall
-	if Input.is_action_just_pressed("jump"):
-		if wall_jumps > 0:
-			horiz_vel += get_wall_normal() * wall_speed
-			self.velocity.y = jump_strength
-			wall_jumps -= 1
-	elif Input.is_action_pressed("crouch"):
-		horiz_vel += get_wall_normal() * wall_speed
+	#calculate forward direction
+	wall_forward_dir = (self.velocity.normalized() - wall_normal * velocity.normalized().dot(wall_normal)).normalized()
+
+
+func update_velocity_wallrun(delta) -> void:
+	
+	if wish_jump && wall_jumps > 0:
+		self.velocity += get_wall_normal() * walljump_push_force
+		self.velocity.y = walljump_y_velocity
+		wall_jumps -= 1
+	elif wish_crouch:
+		self.velocity += get_wall_normal() * walljump_push_force
 		self.velocity.y = -1.5
 	
-	#wall movement math
-	var collision = get_slide_collision(0)
-	var normal = collision.get_normal()
-	get_tree().create_timer(0.5)
-	var wallrun_dir = -normal * wall_speed * 5
-	var player_view_dir = -CAMERA_CONTROLLER.global_transform.basis.z
-	var dot = wallrun_dir.dot(player_view_dir)
-	if dot <0:
-		wallrun_dir = -wallrun_dir
-	wallrun_dir += normal * 0.01
-	wish_dir = wallrun_dir
-	
-	var target_roll := 0.0
-	if WALLJUMP_RAYCAST.is_colliding():
-		var wall_collision_point = WALLJUMP_RAYCAST.get_collision_point()
-		var wall_collision_normal = WALLJUMP_RAYCAST.get_collision_normal()
-		
-		var distance = WALLJUMP_RAYCAST.global_position.distance_to(wall_collision_point)
-		var t =  clamp(distance / 6, 0.0, 1.0)
-		
-		var right_dir = global_transform.basis.x
-		var side = right_dir.dot(-wall_collision_normal)
-		
-		var roll_amount = deg_to_rad(35 * (1.0-t))
-		target_roll = roll_amount * sign(side)
-		CAMERA_CONTROLLER.rotation.z = lerp(CAMERA_CONTROLLER.rotation.z, target_roll, 6.0 * delta)
-	
-	
-	
-	# Update velocity
-	velocity.x = horiz_vel.x
-	velocity.z = horiz_vel.z
+	if Input.is_action_pressed("move_up"):
+		var collision = get_slide_collision(0)
+		var normal = collision.get_normal()
+		get_tree().create_timer(0.5)
+		var wallrun_dir = wall_forward_dir * wallrun_speed
+		wallrun_dir += normal * 0.01
+		wish_dir = wallrun_dir
+
+func gravity_with_multiplier(delta, mult):
+	self.velocity.y -= GRAVITY * delta * mult
