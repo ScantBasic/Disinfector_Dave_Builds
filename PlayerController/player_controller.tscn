@@ -1,0 +1,141 @@
+[gd_scene format=3 uid="uid://dmt06ggb3eccw"]
+
+[ext_resource type="Script" uid="uid://dvbwt0uwqul75" path="res://PlayerController/StateMachine/player_controller.gd" id="1_e7mp1"]
+[ext_resource type="Script" uid="uid://cufc52dsw6dci" path="res://PlayerController/Camera/camera_controller.gd" id="1_tm7ni"]
+[ext_resource type="Script" uid="uid://b0p40hfbkggxm" path="res://PlayerController/StateMachine/state_machine.gd" id="3_knq4e"]
+[ext_resource type="Script" uid="uid://c6uhuo2ugq37f" path="res://PlayerController/StateMachine/idle_state.gd" id="4_bue73"]
+[ext_resource type="Script" uid="uid://c876dgia4gxdw" path="res://PlayerController/StateMachine/inair_state.gd" id="5_c7lc1"]
+[ext_resource type="Script" uid="uid://d1nc3cetav2dp" path="res://PlayerController/StateMachine/jump_state.gd" id="6_owivs"]
+[ext_resource type="Script" uid="uid://bcsu3gfs74iuf" path="res://PlayerController/StateMachine/walk_state.gd" id="7_k6d7u"]
+[ext_resource type="Script" uid="uid://cdty7menbw5ns" path="res://PlayerController/StateMachine/crouch_state.gd" id="8_ic6tb"]
+[ext_resource type="Script" uid="uid://uwe2jaycdy5w" path="res://PlayerController/StateMachine/run_state.gd" id="9_l5k72"]
+[ext_resource type="Script" uid="uid://bdnc7af65c67d" path="res://PlayerController/StateMachine/slide_state.gd" id="10_4kux2"]
+[ext_resource type="Script" uid="uid://dtdc3dhx2clfb" path="res://PlayerController/StateMachine/dash_state.gd" id="11_3emlx"]
+[ext_resource type="Script" uid="uid://n4ik8jlctxgu" path="res://PlayerController/StateMachine/fly_state.gd" id="12_e60qd"]
+[ext_resource type="Script" uid="uid://drhgn6bsq4ciq" path="res://PlayerController/StateMachine/wallrun_state.gd" id="13_m5xcj"]
+[ext_resource type="Script" uid="uid://dd0p1kospi3ik" path="res://PlayerController/StateMachine/water_state.gd" id="14_f14gu"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_e7mp1"]
+radius = 0.3
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_u86xj"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_tm7ni"]
+albedo_color = Color(0, 0.70980394, 0, 1)
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_e7mp1"]
+material = SubResource("StandardMaterial3D_tm7ni")
+
+[node name="PlayerController" type="CharacterBody3D" unique_id=725695152 groups=["PlayerController"]]
+collision_layer = 2
+script = ExtResource("1_e7mp1")
+
+[node name="CameraController" type="Node3D" parent="." unique_id=1514324413 node_paths=PackedStringArray("DEFAULT_CAMERA")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.7, 0)
+script = ExtResource("1_tm7ni")
+DEFAULT_CAMERA = NodePath("CameraFirstPerson")
+
+[node name="CameraFirstPerson" type="Camera3D" parent="CameraController" unique_id=1876766367]
+unique_name_in_owner = true
+cull_mask = 1
+current = true
+fov = 90.0
+near = 0.01
+far = 1000.0
+
+[node name="CameraCasts" type="Node3D" parent="CameraController/CameraFirstPerson" unique_id=1737915710]
+
+[node name="LeftWallCheck" type="RayCast3D" parent="CameraController/CameraFirstPerson/CameraCasts" unique_id=539751553]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.7, 0)
+target_position = Vector3(1, 0, 0)
+collision_mask = 4
+
+[node name="RightWallCheck" type="RayCast3D" parent="CameraController/CameraFirstPerson/CameraCasts" unique_id=1124731343]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.7, 0)
+target_position = Vector3(-1, 0, 0)
+collision_mask = 4
+
+[node name="ThirdPersonCameraController" type="Node3D" parent="CameraController" unique_id=615262228]
+unique_name_in_owner = true
+
+[node name="CameraThirdPerson" type="Camera3D" parent="CameraController/ThirdPersonCameraController" unique_id=1035914759]
+unique_name_in_owner = true
+cull_mask = 3
+
+[node name="SpringArm3rdPerson" type="SpringArm3D" parent="CameraController/ThirdPersonCameraController" unique_id=377226906]
+shape = SubResource("SphereShape3D_e7mp1")
+spring_length = 6.0
+
+[node name="SpringArmPosition" type="Node3D" parent="CameraController/ThirdPersonCameraController/SpringArm3rdPerson" unique_id=236762157]
+
+[node name="CollisionBox" type="CollisionShape3D" parent="." unique_id=927364595]
+shape = SubResource("CapsuleShape3D_u86xj")
+
+[node name="Model_Placeholder" type="MeshInstance3D" parent="." unique_id=755146101]
+layers = 2
+mesh = SubResource("CapsuleMesh_e7mp1")
+
+[node name="Raycasts" type="Node3D" parent="." unique_id=1595527931]
+
+[node name="CeilingCheck" type="RayCast3D" parent="Raycasts" unique_id=2063627138]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.75, 0)
+exclude_parent = false
+target_position = Vector3(0, 3, 0)
+
+[node name="FloorCheck" type="RayCast3D" parent="Raycasts" unique_id=1029401795]
+unique_name_in_owner = true
+exclude_parent = false
+target_position = Vector3(0, -3, 0)
+
+[node name="WallrunFloorCheck" type="RayCast3D" parent="Raycasts" unique_id=1587212016]
+unique_name_in_owner = true
+exclude_parent = false
+target_position = Vector3(0, -1.5, 0)
+
+[node name="WaterAboveCheck" type="RayCast3D" parent="Raycasts" unique_id=596554936]
+unique_name_in_owner = true
+target_position = Vector3(0, 3, 0)
+collision_mask = 3
+hit_from_inside = true
+collide_with_areas = true
+debug_shape_custom_color = Color(1, 0, 1, 1)
+
+[node name="StateMachine" type="Node" parent="." unique_id=493449076 node_paths=PackedStringArray("init_state")]
+script = ExtResource("3_knq4e")
+init_state = NodePath("IdleState")
+
+[node name="IdleState" type="Node" parent="StateMachine" unique_id=201797989]
+script = ExtResource("4_bue73")
+
+[node name="InairState" type="Node" parent="StateMachine" unique_id=1302350254]
+script = ExtResource("5_c7lc1")
+
+[node name="JumpState" type="Node" parent="StateMachine" unique_id=2076753003]
+script = ExtResource("6_owivs")
+
+[node name="WalkState" type="Node" parent="StateMachine" unique_id=934631183]
+script = ExtResource("7_k6d7u")
+
+[node name="CrouchState" type="Node" parent="StateMachine" unique_id=1125947328]
+script = ExtResource("8_ic6tb")
+
+[node name="RunState" type="Node" parent="StateMachine" unique_id=806489971]
+script = ExtResource("9_l5k72")
+
+[node name="SlideState" type="Node" parent="StateMachine" unique_id=517450897]
+script = ExtResource("10_4kux2")
+
+[node name="DashState" type="Node" parent="StateMachine" unique_id=643277131]
+script = ExtResource("11_3emlx")
+
+[node name="FlyState" type="Node" parent="StateMachine" unique_id=1446239315]
+script = ExtResource("12_e60qd")
+
+[node name="WallrunState" type="Node" parent="StateMachine" unique_id=424568112]
+script = ExtResource("13_m5xcj")
+
+[node name="WaterState" type="Node" parent="StateMachine" unique_id=1543928101]
+script = ExtResource("14_f14gu")
