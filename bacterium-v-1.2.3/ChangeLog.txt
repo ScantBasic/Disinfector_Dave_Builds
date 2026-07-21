@@ -1,0 +1,35 @@
+26.5.2026
+Started the Bacterium Engine as a solution to the flaws within the Disinfect Engine.
+Added the Camera Controller from the Disinfect Engine, with an added clause to where zoom in
+will not occur if in the third person camera. Also began working on an updated state machine
+for the movement system. Made four basic states for movement; Idle, Running, Jumping, and Falling.
+These will be updated once I get further along with adding states.
+
+28.5.2026
+Added a double jump state to remove any potential bugs from how complex the Disinfect Engine's jump
+mechanics are. Movement wise it is the same just more clean on the code side. Added the dashing state
+in. I am debating manually adding in dash redirection with how I am fixing the system. Based on the poll
+I made in the dev server, that will probably happen. Made some slight changes to slow down double jumping
+and dashing to not make them insanely busted while staying smooth feeling. Added sliding to the new system.
+Need to test if I can recreate the bug in the Disinfect Engine with sliding. Removed dashing from
+grounded movement as well as made being grounded end dashing early. Added a bonus to slide cancelling
+so it actually is good. Fixed issues with the camera regarding state names. This was done with what can
+best be called magic and trial by error. I do not know how I fixed the fov issues but I did.
+
+2.6.2026
+Added the wall jump and wall running states to make the part of the engine I needed done a year and a
+half ago at a functional level. Need to add water.
+
+17.6.2026
+Actually got wallrunning and walljumping into the state machine in a working manner based on my tests. I need
+to now add a maximum amount of walljumps before you hit the ground again to prevent future abuse of walls being
+infinite height.
+
+7.7.2026
+Added a maximum to walljumping and cleaned up dashing and double jumping a little by making them more gameplay
+intuitive. Intend to add water physics but atm do not feel up to it.
+
+7.21.2026
+Added proper camera rotation for wallrunning. Fixed double jumping not having a minimum velocity.
+Added a wading state for semi-submerged activities. Added a swimming state. Might need to fix
+some transitions later, might drop 1.2.3 as a test for the crew.
