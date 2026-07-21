@@ -1,0 +1,151 @@
+[gd_scene format=3 uid="uid://cjf5yw61t0pgb"]
+
+[ext_resource type="Script" uid="uid://bshenq1gahpyk" path="res://Player_Controller/Scripts/player_controller.gd" id="1_gok0x"]
+[ext_resource type="Script" uid="uid://clvyoolt0nkmx" path="res://Player_Controller/Scripts/camera_controller.gd" id="2_w23bw"]
+[ext_resource type="Script" uid="uid://dq0bl7vpg0faw" path="res://Player_Controller/Scripts/StateMachine.gd" id="3_w23bw"]
+[ext_resource type="Script" uid="uid://bahecfhh7kvjp" path="res://Player_Controller/Scripts/Idle.gd" id="4_nu373"]
+[ext_resource type="Script" uid="uid://bfemfdav8sj1u" path="res://Player_Controller/Scripts/Running.gd" id="5_s1ilu"]
+[ext_resource type="Script" uid="uid://cihqxqhgddn44" path="res://Player_Controller/Scripts/Jumping.gd" id="6_0uai3"]
+[ext_resource type="Script" uid="uid://dbepmglhm86p0" path="res://Player_Controller/Scripts/Falling.gd" id="7_0n6sv"]
+[ext_resource type="Script" uid="uid://quqhta3gw3k" path="res://Player_Controller/Scripts/DoubleJumping.gd" id="8_lbfu6"]
+[ext_resource type="Script" uid="uid://dtq3l0l2xam2l" path="res://Player_Controller/Scripts/Dashing.gd" id="9_ey8u4"]
+[ext_resource type="Script" uid="uid://crdiidi6yrvxm" path="res://Player_Controller/Scripts/Sliding.gd" id="10_tfdsp"]
+[ext_resource type="Script" uid="uid://drrgsxeu2uf5m" path="res://Player_Controller/Scripts/wallrunning.gd" id="11_57ort"]
+[ext_resource type="Script" uid="uid://dcdtqniynr2jo" path="res://Player_Controller/Scripts/walljumping.gd" id="11_keiod"]
+[ext_resource type="Script" uid="uid://wxuoyufgw5n3" path="res://Player_Controller/Scripts/wading.gd" id="13_gk5sa"]
+[ext_resource type="Script" uid="uid://cdnempniihg2t" path="res://Player_Controller/Scripts/swimming.gd" id="13_nrs0k"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_nu373"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_s1ilu"]
+albedo_color = Color(0.8980392, 0.37254903, 0, 1)
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_0uai3"]
+material = SubResource("StandardMaterial3D_s1ilu")
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_gk5sa"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_nrs0k"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_0n6sv"]
+radius = 0.3
+
+[node name="Player_Controller" type="CharacterBody3D" unique_id=1056311058]
+floor_snap_length = 0.2
+script = ExtResource("1_gok0x")
+
+[node name="Collision_Box" type="CollisionShape3D" parent="." unique_id=286462338]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+shape = SubResource("CapsuleShape3D_nu373")
+
+[node name="Placeholder_Bean" type="MeshInstance3D" parent="." unique_id=1642008134]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+layers = 2
+mesh = SubResource("CapsuleMesh_0uai3")
+
+[node name="Wading_Detection" type="Area3D" parent="." unique_id=1039017578]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+collision_layer = 0
+collision_mask = 2
+input_ray_pickable = false
+monitorable = false
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Wading_Detection" unique_id=1290989084]
+shape = SubResource("BoxShape3D_gk5sa")
+
+[node name="Swimming_Detection" type="Area3D" parent="." unique_id=171009489]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
+collision_layer = 0
+collision_mask = 2
+input_ray_pickable = false
+monitorable = false
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Swimming_Detection" unique_id=1657518545]
+shape = SubResource("BoxShape3D_nrs0k")
+debug_color = Color(1, 0.4766736, 0.77038246, 0.41960785)
+
+[node name="RayCasts" type="Node3D" parent="." unique_id=1122011407]
+
+[node name="FloorCheck" type="RayCast3D" parent="RayCasts" unique_id=1957287526]
+unique_name_in_owner = true
+
+[node name="CameraController" type="Node3D" parent="." unique_id=392285347 node_paths=PackedStringArray("DEFAULT_CAMERA")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.7, 0)
+script = ExtResource("2_w23bw")
+DEFAULT_CAMERA = NodePath("FirstPersonCamera")
+
+[node name="FirstPersonCamera" type="Camera3D" parent="CameraController" unique_id=427934177]
+unique_name_in_owner = true
+cull_mask = 1
+current = true
+fov = 90.0
+near = 0.01
+far = 1000.0
+
+[node name="WallRunning Raycasts" type="Node3D" parent="CameraController/FirstPersonCamera" unique_id=667825249]
+
+[node name="LeftWallCheck" type="RayCast3D" parent="CameraController/FirstPersonCamera/WallRunning Raycasts" unique_id=101932228]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.7, 0)
+target_position = Vector3(-1, 0, 0)
+collision_mask = 4
+
+[node name="RightWallCheck" type="RayCast3D" parent="CameraController/FirstPersonCamera/WallRunning Raycasts" unique_id=577586403]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.7, 0)
+target_position = Vector3(1, 0, 0)
+collision_mask = 4
+
+[node name="ThirdPersonCameraController" type="Node3D" parent="CameraController" unique_id=2031636137]
+unique_name_in_owner = true
+
+[node name="ThirdPersonCamera" type="Camera3D" parent="CameraController/ThirdPersonCameraController" unique_id=1844752062]
+unique_name_in_owner = true
+cull_mask = 3
+fov = 90.0
+near = 0.01
+far = 1000.0
+
+[node name="SpringArm3D" type="SpringArm3D" parent="CameraController/ThirdPersonCameraController" unique_id=629212549]
+shape = SubResource("SphereShape3D_0n6sv")
+spring_length = 6.0
+
+[node name="SpringArmPosition" type="Node3D" parent="CameraController/ThirdPersonCameraController/SpringArm3D" unique_id=2015744147]
+unique_name_in_owner = true
+
+[node name="StateMachine" type="Node" parent="." unique_id=1288067795 node_paths=PackedStringArray("initial_state")]
+script = ExtResource("3_w23bw")
+initial_state = NodePath("Falling")
+
+[node name="Idle" type="Node" parent="StateMachine" unique_id=1269803403]
+script = ExtResource("4_nu373")
+
+[node name="Running" type="Node" parent="StateMachine" unique_id=166191241]
+script = ExtResource("5_s1ilu")
+
+[node name="Jumping" type="Node" parent="StateMachine" unique_id=967128174]
+script = ExtResource("6_0uai3")
+
+[node name="Falling" type="Node" parent="StateMachine" unique_id=722403409]
+script = ExtResource("7_0n6sv")
+
+[node name="DoubleJumping" type="Node" parent="StateMachine" unique_id=2046210889]
+script = ExtResource("8_lbfu6")
+
+[node name="Dashing" type="Node" parent="StateMachine" unique_id=1221093368]
+script = ExtResource("9_ey8u4")
+
+[node name="Sliding" type="Node" parent="StateMachine" unique_id=1612595347]
+script = ExtResource("10_tfdsp")
+
+[node name="WallRunning" type="Node" parent="StateMachine" unique_id=701919434]
+script = ExtResource("11_57ort")
+
+[node name="WallJumping" type="Node" parent="StateMachine" unique_id=1027639710]
+script = ExtResource("11_keiod")
+
+[node name="Swimming" type="Node" parent="StateMachine" unique_id=663710026]
+script = ExtResource("13_nrs0k")
+
+[node name="Wading" type="Node" parent="StateMachine" unique_id=977711031]
+script = ExtResource("13_gk5sa")
